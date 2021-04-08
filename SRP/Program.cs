@@ -5,7 +5,8 @@ namespace SRP
 {
     class Program
     {
-        private static readonly BookStore _bookStore = new BookStore();
+        static Interfaces.IBookReader reader = new BookStore();
+        static Interfaces.IBookWriter writer = new BookStore();
         private static readonly BookPresenter _bookPresenter = new BookPresenter();
         static void Main(string[] args)
         {
@@ -65,7 +66,7 @@ namespace SRP
         }
         private static void FetchAndDisplayBook()
         {
-            var book = _bookStore.Load(1);
+            var book = reader.Find(1);
             _bookPresenter.Display(book);
         }
         private static void FailToFetchBook()
@@ -75,7 +76,7 @@ namespace SRP
         }
         private static void BookDoesNotExist()
         {
-            var book = _bookStore.Load(999);
+            var book = reader.Find(999);
             if (book == null)
             {
                 throw new Exception($"Book {book.Id} does not exist");
@@ -88,7 +89,7 @@ namespace SRP
                 Id = 4,
                 Title = "Some out of order book"
             };
-            _bookStore.Create(book);
+            writer.Create(book);
             _bookPresenter.Display(book);
         }
         private static void DisplayTheBookSomewhereElse()
@@ -102,11 +103,11 @@ namespace SRP
 
             var title = Console.ReadLine();
             var book = new Refcatored.Book { Title = title };
-            _bookStore.Create(book);
+            writer.Create(book);
         }
         public static void ListAllBooks()
         {
-            foreach (var book in _bookStore.Books)
+            foreach (var book in reader.Books)
             {
                 _bookPresenter.Display(book);
             }

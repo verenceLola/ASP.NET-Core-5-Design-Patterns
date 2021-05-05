@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -16,5 +17,21 @@ namespace WishList
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+        private class Tuples
+        {
+            public void UnnamedTuple()
+            {
+                var unnamed = ("some", "value", 322);
+                Console.WriteLine(unnamed.Item1, unnamed.Item2, unnamed.Item3);
+            }
+            public void Named()
+            {
+                var named = (name: "Foo", age: 23);
+                Console.WriteLine("Foo", named.name);
+                Console.WriteLine(23.ToString(), named.age);
+                var (name, age) = named;
+                Console.WriteLine(name, age);
+            }
+        }
     }
 }

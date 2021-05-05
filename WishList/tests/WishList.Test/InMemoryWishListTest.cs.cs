@@ -18,7 +18,7 @@ namespace WishList.Test
             _options = new InMemoryWishListOptions
             {
                 SystemClock = _systemClockMock.Object,
-                ExpirationInSeconds = 30
+                ExpirationInSeconds = 300
             };
 #if TEST_InMemoryWishListRefactored
             sut = new InMemoryWishListRefactored(_options);

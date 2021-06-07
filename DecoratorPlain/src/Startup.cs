@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using Scrutor;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,8 +20,10 @@ namespace DecoratorPlain
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-            services.AddSingleton<Client>().AddSingleton<IComponent>(serviceProvider => new DecoratorB(new DecoratorA(new ComponentA())));
+            services.AddSingleton<Client>()
+                .AddSingleton<IComponent, ComponentA>()
+                .Decorate<IComponent, DecoratorA>()
+                .Decorate<IComponent, DecoratorB>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

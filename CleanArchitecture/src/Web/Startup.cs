@@ -32,8 +32,7 @@ namespace Web
             services.AddDependencyInjectionModules(typeof(Startup).Assembly);
             services.AddSingleton<IMapper<Core.Entities.Product, DTO.StockLevel>, Mappers.StockMapper>();
             services.AddSingleton<IMapper<Core.Entities.Product, DTO.ProductDetails>, Mappers.ProductMapper>();
-            services.AddSingleton<IProductMapperService, ProductMapperService>();
-            services.AddSingleton<IStockMapperService, StockMapperService>();
+            services.AddSingleton<IMapperService, ServiceLocatorMappingService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

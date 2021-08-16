@@ -11,8 +11,8 @@ namespace Web.Controllers
     [Route("[controller]")]
     public class StocksController : ControllerBase
     {
-        private readonly Services.IStockMapperService _mapper;
-        public StocksController(Services.IStockMapperService mapper)
+        private readonly IMapperService _mapper;
+        public StocksController(IMapperService mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
@@ -26,7 +26,7 @@ namespace Web.Controllers
             try
             {
                 var product = useCase.Handle(productId, command.Amount);
-                var stockLevel = _mapper.Map(product);
+                var stockLevel = _mapper.Map<Core.Entities.Product, DTO.StockLevel>(product);
 
                 return Ok(stockLevel);
             }
@@ -48,7 +48,7 @@ namespace Web.Controllers
         )
         {
             var product = useCase.Handle(productId, command.Amount);
-            var stockLevel = _mapper.Map(product);
+            var stockLevel = _mapper.Map<Core.Entities.Product, DTO.StockLevel>(product);
 
             return Ok(stockLevel);
         }

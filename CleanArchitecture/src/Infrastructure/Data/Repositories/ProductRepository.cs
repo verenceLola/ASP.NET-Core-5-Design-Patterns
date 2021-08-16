@@ -9,26 +9,23 @@ namespace Infrastructure.Data.Repositories
     public class ProductRepository : IProductRepository
     {
         private readonly ProductContext _db;
-        private readonly IMapper<Models.Product, Core.Entities.Product> _dataToEntityMapper;
-        private readonly IMapper<Core.Entities.Product, Models.Product> _entityToDataMapper;
+        private readonly IMapperService _mapperService;
         public ProductRepository(
             ProductContext db,
-            IMapper<Models.Product, Core.Entities.Product> dataToEntityMapper,
-            IMapper<Core.Entities.Product, Models.Product> entityToDataMapper
+            IMapperService mapperService
         )
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
-            _dataToEntityMapper = dataToEntityMapper ?? throw new ArgumentNullException(nameof(dataToEntityMapper));
-            _entityToDataMapper = entityToDataMapper ?? throw new ArgumentNullException(nameof(entityToDataMapper));
+            _mapperService = mapperService ?? throw new ArgumentNullException(nameof(mapperService));
         }
         public IEnumerable<Product> All() => _db.Products.Select(
-            p => _dataToEntityMapper.Map(p)
+            p => _mapperService.Map<Models.Product, Product>(p)
         );
         public Product FindById(int productId)
         {
             var product = _db.Products.Find(productId);
 
-            return _dataToEntityMapper.Map(product);
+            return _mapperService.Map<Models.Product, Product>(product);
         }
         public void Update(Product product)
         {
@@ -39,7 +36,7 @@ namespace Infrastructure.Data.Repositories
         }
         public void Insert(Product product)
         {
-            var data = _entityToDataMapper.Map(product);
+            var data = _mapperService.Map<Product, Models.Product>(product);
             _db.Products.Add(data);
             _db.SaveChanges();
         }

@@ -29,6 +29,8 @@ namespace Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDependencyInjectionModules(typeof(Startup).Assembly);
+            services.AddSingleton<IMapper<Core.Entities.Product, DTO.StockLevel>, Mappers.StockMapper>();
+            services.AddSingleton<IMapper<Core.Entities.Product, DTO.ProductDetails>, Mappers.ProductMapper>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -74,6 +76,8 @@ namespace Web
         public DataLayerModule(IServiceCollection services)
             : base(services)
         {
+            services.AddSingleton<IMapper<Infrastructure.Data.Models.Product, Core.Entities.Product>, Infrastructure.Data.Mappers.ProductDataToEntityMapper>();
+            services.AddSingleton<IMapper<Core.Entities.Product, Infrastructure.Data.Models.Product>, Infrastructure.Data.Mappers.ProductEntityToDataMapper>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddDbContext<ProductContext>(options => options
                 .UseInMemoryDatabase("ProductContextMemoryDB")

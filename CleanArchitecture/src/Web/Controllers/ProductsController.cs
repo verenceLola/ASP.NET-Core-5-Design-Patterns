@@ -12,19 +12,17 @@ namespace Web.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
-        public ProductsController(IProductRepository productRepository)
+        private readonly IMapper<Core.Entities.Product, DTO.ProductDetails> _mapper;
+        public ProductsController(IProductRepository productRepository, IMapper<Core.Entities.Product, DTO.ProductDetails> mapper)
         {
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
         [HttpGet]
         public ActionResult<IEnumerable<ProductDetails>> Get()
         {
             var products = _productRepository.All().Select(
-                p => new ProductDetails(
-                    id: p.Id,
-                    name: p.Name,
-                    quantityInStock: p.QuantityInStock
-                )
+                p => _mapper.Map(p)
             );
 
             return Ok(products);

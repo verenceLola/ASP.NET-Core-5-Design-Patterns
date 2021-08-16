@@ -1,4 +1,6 @@
-﻿using Core.UseCases;
+﻿using System;
+using Core.UseCases;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Web.DTO;
 using Core.Exceptions;
@@ -9,6 +11,11 @@ namespace Web.Controllers
     [Route("[controller]")]
     public class StocksController : ControllerBase
     {
+        private readonly IMapper<Core.Entities.Product, DTO.StockLevel> _mapper;
+        public StocksController(IMapper<Core.Entities.Product, DTO.StockLevel> mapper)
+        {
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        }
         [HttpPost("remove-stocks")]
         public ActionResult<StockLevel> Remove(
             int productId,
@@ -18,8 +25,8 @@ namespace Web.Controllers
         {
             try
             {
-                var quantityInStock = useCase.Handle(productId, command.Amount);
-                var stockLevel = new StockLevel(quantityInStock);
+                var product = useCase.Handle(productId, command.Amount);
+                var stockLevel = _mapper.Map(product);
 
                 return Ok(stockLevel);
             }
@@ -40,9 +47,10 @@ namespace Web.Controllers
             [FromServices] AddStocks useCase
         )
         {
-            var quantityInStock = useCase.Handle(productId, command.Amount);
+            var product = useCase.Handle(productId, command.Amount);
+            var stockLevel = _mapper.Map(product);
 
-            return Ok(new StockLevel(quantityInStock));
+            return Ok(stockLevel);
         }
     }
 }

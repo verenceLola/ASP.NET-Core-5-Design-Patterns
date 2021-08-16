@@ -10,7 +10,7 @@ namespace Core.UseCases
         {
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         }
-        public int Handle(int productId, int amount)
+        public Entities.Product Handle(int productId, int amount)
         {
             var product = _productRepository.FindById(productId);
             if (amount > product.QuantityInStock)
@@ -20,7 +20,7 @@ namespace Core.UseCases
             product.QuantityInStock -= amount;
             _productRepository.Update(product);
 
-            return product.QuantityInStock;
+            return product;
         }
     }
 }

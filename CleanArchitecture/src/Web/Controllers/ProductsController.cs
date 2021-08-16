@@ -12,8 +12,8 @@ namespace Web.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
-        private readonly IMapper<Core.Entities.Product, DTO.ProductDetails> _mapper;
-        public ProductsController(IProductRepository productRepository, IMapper<Core.Entities.Product, DTO.ProductDetails> mapper)
+        private readonly Services.IProductMapperService _mapper;
+        public ProductsController(IProductRepository productRepository, Services.IProductMapperService mapper)
         {
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

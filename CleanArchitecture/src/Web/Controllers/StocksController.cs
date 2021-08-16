@@ -11,8 +11,8 @@ namespace Web.Controllers
     [Route("[controller]")]
     public class StocksController : ControllerBase
     {
-        private readonly IMapper<Core.Entities.Product, DTO.StockLevel> _mapper;
-        public StocksController(IMapper<Core.Entities.Product, DTO.StockLevel> mapper)
+        private readonly Services.IStockMapperService _mapper;
+        public StocksController(Services.IStockMapperService mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }

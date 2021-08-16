@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections.Generic;
 using Core.Interfaces;
 using Core.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data.Repositories
 {
@@ -33,7 +32,9 @@ namespace Infrastructure.Data.Repositories
         }
         public void Update(Product product)
         {
-            _db.Entry(product).State = EntityState.Modified;
+            var data = _db.Products.Find(product.Id);
+            data.Name = product.Name;
+            data.QuantityInStock = product.QuantityInStock;
             _db.SaveChanges();
         }
         public void Insert(Product product)

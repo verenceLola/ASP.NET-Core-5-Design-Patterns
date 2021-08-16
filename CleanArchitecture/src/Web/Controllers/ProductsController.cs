@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Web.DTO;
 using Core.Interfaces;
+using AutoMapper;
 
 namespace Web.Controllers
 {
@@ -12,8 +13,8 @@ namespace Web.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
-        private readonly IMapperService _mapper;
-        public ProductsController(IProductRepository productRepository, IMapperService mapper)
+        private readonly IMapper _mapper;
+        public ProductsController(IProductRepository productRepository, IMapper mapper)
         {
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -22,7 +23,7 @@ namespace Web.Controllers
         public ActionResult<IEnumerable<ProductDetails>> Get()
         {
             var products = _productRepository.All().Select(
-                p => _mapper.Map<Core.Entities.Product, DTO.ProductDetails>(p)
+                p => _mapper.Map< DTO.ProductDetails>(p)
             );
 
             return Ok(products);

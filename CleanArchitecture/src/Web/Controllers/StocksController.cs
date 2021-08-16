@@ -1,6 +1,6 @@
 ﻿using System;
 using Core.UseCases;
-using Core.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Web.DTO;
 using Core.Exceptions;
@@ -11,8 +11,8 @@ namespace Web.Controllers
     [Route("[controller]")]
     public class StocksController : ControllerBase
     {
-        private readonly IMapperService _mapper;
-        public StocksController(IMapperService mapper)
+        private readonly IMapper _mapper;
+        public StocksController(IMapper mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
@@ -26,7 +26,7 @@ namespace Web.Controllers
             try
             {
                 var product = useCase.Handle(productId, command.Amount);
-                var stockLevel = _mapper.Map<Core.Entities.Product, DTO.StockLevel>(product);
+                var stockLevel = _mapper.Map<DTO.StockLevel>(product);
 
                 return Ok(stockLevel);
             }
@@ -48,7 +48,7 @@ namespace Web.Controllers
         )
         {
             var product = useCase.Handle(productId, command.Amount);
-            var stockLevel = _mapper.Map<Core.Entities.Product, DTO.StockLevel>(product);
+            var stockLevel = _mapper.Map<DTO.StockLevel>(product);
 
             return Ok(stockLevel);
         }

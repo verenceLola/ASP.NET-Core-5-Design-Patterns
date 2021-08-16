@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Core.UseCases;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +13,6 @@ using ForEvolve.DependencyInjection;
 using Infrastructure.Data;
 using Infrastructure.Data.Repositories;
 using Core.Interfaces;
-using Web.Services;
 
 
 namespace Web
@@ -30,9 +30,6 @@ namespace Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDependencyInjectionModules(typeof(Startup).Assembly);
-            services.AddSingleton<IMapper<Core.Entities.Product, DTO.StockLevel>, Mappers.StockMapper>();
-            services.AddSingleton<IMapper<Core.Entities.Product, DTO.ProductDetails>, Mappers.ProductMapper>();
-            services.AddSingleton<IMapperService, ServiceLocatorMappingService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -41,7 +38,7 @@ namespace Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IMapper mapper)
         {
             if (env.IsDevelopment())
             {
@@ -60,6 +57,7 @@ namespace Web
             {
                 endpoints.MapControllers();
             });
+            mapper.ConfigurationProvider.AssertConfigurationIsValid();
             app.Seed<ProductContext>();
         }
     }
@@ -78,8 +76,10 @@ namespace Web
         public DataLayerModule(IServiceCollection services)
             : base(services)
         {
-            services.AddSingleton<IMapper<Infrastructure.Data.Models.Product, Core.Entities.Product>, Infrastructure.Data.Mappers.ProductDataToEntityMapper>();
-            services.AddSingleton<IMapper<Core.Entities.Product, Infrastructure.Data.Models.Product>, Infrastructure.Data.Mappers.ProductEntityToDataMapper>();
+            services.AddAutoMapper(
+                GetType().Assembly,
+                typeof(Infrastructure.Data.Mappers.ProductProfile).Assembly
+            );
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddDbContext<ProductContext>(options => options
                 .UseInMemoryDatabase("ProductContextMemoryDB")

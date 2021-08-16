@@ -1,31 +1,29 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using Core.Interfaces;
 using Core.Entities;
+using AutoMapper;
 
 namespace Infrastructure.Data.Repositories
 {
     public class ProductRepository : IProductRepository
     {
         private readonly ProductContext _db;
-        private readonly IMapperService _mapperService;
+        private readonly IMapper _mapper;
         public ProductRepository(
             ProductContext db,
-            IMapperService mapperService
+            IMapper mapper
         )
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
-            _mapperService = mapperService ?? throw new ArgumentNullException(nameof(mapperService));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
-        public IEnumerable<Product> All() => _db.Products.Select(
-            p => _mapperService.Map<Models.Product, Product>(p)
-        );
+        public IEnumerable<Product> All() => _mapper.ProjectTo<Product>(_db.Products);
         public Product FindById(int productId)
         {
             var product = _db.Products.Find(productId);
 
-            return _mapperService.Map<Models.Product, Product>(product);
+            return _mapper.Map<Product>(product);
         }
         public void Update(Product product)
         {
@@ -36,7 +34,7 @@ namespace Infrastructure.Data.Repositories
         }
         public void Insert(Product product)
         {
-            var data = _mapperService.Map<Product, Models.Product>(product);
+            var data = _mapper.Map<Models.Product>(product);
             _db.Products.Add(data);
             _db.SaveChanges();
         }

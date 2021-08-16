@@ -1,15 +1,12 @@
 using Core.Entities;
-using Core.Interfaces;
+using AutoMapper;
 
 namespace Web.Mappers
 {
-    public class ProductMapper : IMapper<Product, DTO.ProductDetails>
+    public class ProductProfile : Profile
     {
-        public DTO.ProductDetails Map(Product entity) =>
-            new DTO.ProductDetails(
-                id: entity.Id,
-                name: entity.Name,
-                quantityInStock: entity.QuantityInStock
-            );
+        public ProductProfile(){
+            CreateMap<Product, DTO.ProductDetails>();
+        }
     }
 }

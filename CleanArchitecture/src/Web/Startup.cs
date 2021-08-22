@@ -1,4 +1,5 @@
 using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Core.UseCases;
 using Microsoft.AspNetCore.Hosting;
@@ -30,6 +31,7 @@ namespace Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDependencyInjectionModules(typeof(Startup).Assembly);
+            services.AddMediatR(typeof(Core.Exceptions.NotEnoughStockException).Assembly);
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

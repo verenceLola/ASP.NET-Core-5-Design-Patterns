@@ -1,26 +1,43 @@
 using System;
+using MediatR;
 using Core.Interfaces;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Core.UseCases
 {
     public class RemoveStocks
     {
-        private readonly IProductRepository _productRepository;
-        public RemoveStocks(IProductRepository productRepository)
+        public class Command : IRequest<int>
         {
-            _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
-        }
-        public Entities.Product Handle(int productId, int amount)
-        {
-            var product = _productRepository.FindById(productId);
-            if (amount > product.QuantityInStock)
-            {
-                throw new Exceptions.NotEnoughStockException(product.QuantityInStock, amount);
-            }
-            product.QuantityInStock -= amount;
-            _productRepository.Update(product);
+            public int ProductId { get; set; }
+            public int Amount { get; set; }
 
-            return product;
+            public void Deconstruct(out int productId, out int amount) =>
+                (productId, amount) = (ProductId, Amount);
+        }
+        public class Handler : IRequestHandler<Command, int>
+        {
+            private readonly IProductRepository _productRepository;
+            public Handler(IProductRepository productRepository)
+            {
+                _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            }
+            public async Task<int> Handle(Command command, CancellationToken cancellationToken)
+            {
+                var (productId, amount) = command;
+                var product = await _productRepository.FindByIdAsync(productId, cancellationToken);
+
+                if (amount > product.QuantityInStock)
+                {
+                    throw new Exceptions.NotEnoughStockException(product.QuantityInStock, amount);
+                }
+
+                product.QuantityInStock -= amount;
+                await _productRepository.UpdateAsync(product, cancellationToken);
+
+                return product.QuantityInStock;
+            }
         }
     }
 }

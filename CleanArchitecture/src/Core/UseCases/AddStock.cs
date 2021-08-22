@@ -1,3 +1,6 @@
+using MediatR;
+using System.Threading.Tasks;
+using System.Threading;
 using System;
 using Core.Interfaces;
 
@@ -5,18 +8,27 @@ namespace Core.UseCases
 {
     public class AddStocks
     {
-        private readonly IProductRepository _productRepository;
-        public AddStocks(IProductRepository productRepository)
+        public class Command : IRequest<int>
         {
-            _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            public int ProductId { get; set; }
+            public int Amount { get; set; }
         }
-        public Entities.Product Handle(int productId, int amount)
-        {
-            var product = _productRepository.FindById(productId);
-            product.QuantityInStock += amount;
-            _productRepository.Update(product);
 
-            return product;
+        public class Handler : IRequestHandler<Command, int>
+        {
+            private readonly IProductRepository _productRepository;
+            public Handler(IProductRepository productRepository)
+            {
+                _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            }
+            public async Task<int> Handle(Command request, CancellationToken cancellationToken)
+            {
+                var product = await _productRepository.FindByIdAsync(request.ProductId, cancellationToken);
+                product.QuantityInStock += request.Amount;
+                await _productRepository.UpdateAsync(product, cancellationToken);
+
+                return product.QuantityInStock;
+            }
         }
     }
 }

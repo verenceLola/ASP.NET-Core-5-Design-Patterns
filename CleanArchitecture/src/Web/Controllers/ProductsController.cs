@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Web.DTO;
 using Core.Interfaces;
 using AutoMapper;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Web.Controllers
 {
@@ -20,13 +22,14 @@ namespace Web.Controllers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
         [HttpGet]
-        public ActionResult<IEnumerable<ProductDetails>> Get()
+        public async Task<ActionResult<IEnumerable<ProductDetails>>> Get(CancellationToken cancellationToken)
         {
-            var products = _productRepository.All().Select(
-                p => _mapper.Map< DTO.ProductDetails>(p)
+            var products = await _productRepository.AllAsync(cancellationToken);
+            var result = products.Select(
+                p => _mapper.Map<DTO.ProductDetails>(p)
             );
 
-            return Ok(products);
+            return Ok(result);
         }
     }
 }

@@ -1,9 +1,12 @@
-﻿using System;
+﻿using System.Threading.Tasks;
+using System.Threading;
+using System;
 using Core.UseCases;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Web.DTO;
 using Core.Exceptions;
+using MediatR;
 
 namespace Web.Controllers
 {
@@ -12,20 +15,23 @@ namespace Web.Controllers
     public class StocksController : ControllerBase
     {
         private readonly IMapper _mapper;
-        public StocksController(IMapper mapper)
+        private readonly IMediator _mediator;
+        public StocksController(IMapper mapper, IMediator mediator)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
         [HttpPost("remove-stocks")]
-        public ActionResult<StockLevel> Remove(
+        public async Task<ActionResult<StockLevel>> Remove(
             int productId,
-            [FromBody] RemoveStocksCommand command,
-            [FromServices] RemoveStocks useCase
+            [FromBody] RemoveStocks.Command command,
+            CancellationToken cancellationToken
         )
         {
             try
             {
-                var product = useCase.Handle(productId, command.Amount);
+                command.ProductId = productId;
+                var product = await _mediator.Send(command, cancellationToken);
                 var stockLevel = _mapper.Map<DTO.StockLevel>(product);
 
                 return Ok(stockLevel);
@@ -41,13 +47,14 @@ namespace Web.Controllers
             }
         }
         [HttpPost("add-stocks")]
-        public ActionResult<StockLevel> AddStock(
+        public async Task<ActionResult<StockLevel>> AddStockAsync(
             int productId,
-            [FromBody] AddStocksCommand command,
-            [FromServices] AddStocks useCase
+            [FromBody] AddStocks.Command command,
+            CancellationToken cancellationToken
         )
         {
-            var product = useCase.Handle(productId, command.Amount);
+            command.ProductId = productId;
+            var product = await _mediator.Send(command, cancellationToken);
             var stockLevel = _mapper.Map<DTO.StockLevel>(product);
 
             return Ok(stockLevel);

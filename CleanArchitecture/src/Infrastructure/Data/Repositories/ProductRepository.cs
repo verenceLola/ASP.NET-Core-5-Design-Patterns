@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using Core.Interfaces;
 using Core.Entities;
 using AutoMapper;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data.Repositories
 {
@@ -18,31 +22,36 @@ namespace Infrastructure.Data.Repositories
             _db = db ?? throw new ArgumentNullException(nameof(db));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
-        public IEnumerable<Product> All() => _mapper.ProjectTo<Product>(_db.Products);
-        public Product FindById(int productId)
+        public async Task<IEnumerable<Product>> AllAsync(CancellationToken cancellationToken)
         {
-            var product = _db.Products.Find(productId);
+            var products = await _db.Products.ToArrayAsync(cancellationToken);
+
+            return _mapper.ProjectTo<Product>(products.AsQueryable());
+        }
+        public async Task<Product> FindByIdAsync(int productId, CancellationToken cancellationToken)
+        {
+            var product = await _db.Products.FindAsync(productId, cancellationToken);
 
             return _mapper.Map<Product>(product);
         }
-        public void Update(Product product)
+        public async Task UpdateAsync(Product product, CancellationToken cancellationToken)
         {
-            var data = _db.Products.Find(product.Id);
+            var data = await _db.Products.FindAsync(product.Id, cancellationToken);
             data.Name = product.Name;
             data.QuantityInStock = product.QuantityInStock;
-            _db.SaveChanges();
+            await _db.SaveChangesAsync(cancellationToken);
         }
-        public void Insert(Product product)
+        public async Task InsertAsync(Product product, CancellationToken cancellationToken)
         {
             var data = _mapper.Map<Models.Product>(product);
             _db.Products.Add(data);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync(cancellationToken);
         }
-        public void DeleteById(int productId)
+        public async Task DeleteByIdAsync(int productId, CancellationToken cancellationToken)
         {
-            var product = _db.Products.Find(productId);
+            var product = await _db.Products.FindAsync(productId, cancellationToken);
             _db.Products.Remove(product);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync(cancellationToken);
         }
     }
 }
